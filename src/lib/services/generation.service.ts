@@ -3,6 +3,7 @@ import type { SupabaseClient } from "../../db/supabase.client";
 import type { FlashcardProposalDto, GenerationCreateResponseDto } from "../../types";
 import { AIServiceError, DatabaseError } from "../errors/generation.errors";
 import { DEFAULT_USER_ID } from "../../db/supabase.client";
+import { createOpenRouterService } from "./openrouter.service";
 
 /**
  * Service responsible for handling the generation of flashcards using AI
@@ -23,7 +24,7 @@ class GenerationService {
       const sourceTextHash = this.calculateSourceTextHash(sourceText);
       const sourceTextLength = sourceText.length;
 
-      // Step 2: Call the AI service to generate flashcard proposals (mock implementation)
+      // Step 2: Call the AI service to generate flashcard proposals (using OpenRouter)
       const flashcardProposals = await this.callAIService(sourceText);
       const generatedCount = flashcardProposals.length;
       const endTime = Date.now();
@@ -33,7 +34,7 @@ class GenerationService {
       const { data: generationData, error: generationError } = await supabaseClient
         .from("generations")
         .insert({
-          model: "gpt-4", // Mock model name
+          model: "mistralai/mistral-7b-instruct:free", // Using the default OpenRouter model
           generated_count: generatedCount,
           source_text_hash: sourceTextHash,
           source_text_length: sourceTextLength,
@@ -49,7 +50,7 @@ class GenerationService {
           supabaseClient,
           "DB_INSERT_ERROR",
           generationError.message,
-          "gpt-4",
+          "mistralai/mistral-7b-instruct:free",
           sourceTextHash,
           sourceTextLength
         );
@@ -82,39 +83,78 @@ class GenerationService {
   }
 
   /**
-   * Mock implementation of the AI service call
-   * In a real implementation, this would call an external AI service
+   * Call the OpenRouter AI service to generate flashcard proposals
    */
   private async callAIService(sourceText: string): Promise<FlashcardProposalDto[]> {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      // Create OpenRouter service instance
+      const openRouter = createOpenRouterService();
 
-    // Random failure simulation (10% chance)
-    if (Math.random() < 0.1) {
+      // Configure the system prompt
+      const systemPrompt = `You are a specialized AI designed to create educational flashcards from text.
+Your task is to analyze the provided text and create concise, effective flashcards that capture the key concepts, facts, and relationships.
+
+Guidelines for creating good flashcards:
+1. Each flashcard should focus on a single concept, fact, or relationship
+2. The front should contain a clear, specific question or prompt
+3. The back should provide a concise but complete answer or explanation
+4. Questions should test understanding, not just recall of terms
+5. Create between 3-10 flashcards depending on the content density
+
+You MUST return your response as a valid JSON object with a 'flashcards' array containing objects with 'front' and 'back' fields.`;
+
+      // Configure the user prompt with the source text
+      const userPrompt = `Please create flashcards from the following text:\n\n${sourceText}`;
+
+      // Set up OpenRouter for the request
+      openRouter.setSystemMessage(systemPrompt);
+      openRouter.setResponseFormat({
+        name: "flashcards",
+        schema: {
+          type: "object",
+          properties: {
+            flashcards: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  front: { type: "string" },
+                  back: { type: "string" },
+                },
+                required: ["front", "back"],
+              },
+            },
+          },
+          required: ["flashcards"],
+        },
+      });
+
+      // Send the request and get the response
+      const response = await openRouter.sendChatMessage<{ flashcards: { front: string; back: string }[] }>(userPrompt);
+
+      // Convert the response to FlashcardProposalDto format
+      const proposals: FlashcardProposalDto[] = response.flashcards.map((card) => ({
+        front: card.front,
+        back: card.back,
+        source: "ai-full",
+      }));
+
+      return proposals;
+    } catch (error) {
+      // Log the error and rethrow as an AIServiceError
+      console.error("Error calling OpenRouter service:", error);
+
       await this.logGenerationError(
-        null, // No supabase client needed for this mock error
+        null, // No supabase client needed at this point
         "AI_SERVICE_ERROR",
-        "AI service failed to generate flashcards",
-        "gpt-4",
+        error instanceof Error ? error.message : "Unknown AI service error",
+        "mistralai/mistral-7b-instruct:free",
         this.calculateSourceTextHash(sourceText),
         sourceText.length
       );
-      throw new AIServiceError("AI service failed to generate flashcards");
+
+      throw new AIServiceError("Failed to generate flashcards with AI service");
     }
-
-    // Generate exactly 3 mock flashcards
-    const count = 3;
-    const proposals: FlashcardProposalDto[] = [];
-
-    for (let i = 0; i < count; i++) {
-      proposals.push({
-        front: `What is concept #${i + 1} from the text?`,
-        back: `This is the explanation for concept #${i + 1}.`,
-        source: "ai-full",
-      });
-    }
-
-    return proposals;
   }
 
   /**
