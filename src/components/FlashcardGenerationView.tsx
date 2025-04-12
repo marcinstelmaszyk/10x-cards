@@ -61,24 +61,49 @@ export const FlashcardGenerationView: React.FC = () => {
   };
 
   const handleAccept = (id: string) => {
-    setProposals((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, accepted: true, edited: false, rejected: false } : p))
-    );
+    setProposals((prev) => {
+      const updatedProposals = prev.map((p) => {
+        if (p.id === id) {
+          return {
+            ...p,
+            accepted: true,
+            rejected: false,
+          };
+        }
+        return p;
+      });
+
+      return updatedProposals;
+    });
     toast.success("Proposal accepted.");
   };
 
   const handleSaveEdit = (id: string, newFront: string, newBack: string) => {
-    setProposals((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, front: newFront, back: newBack, edited: true, accepted: false } : p))
-    );
+    setProposals((prev) => {
+      const updatedProposals = prev.map((p) =>
+        p.id === id ? { ...p, front: newFront, back: newBack, edited: true, accepted: false } : p
+      );
+
+      return updatedProposals;
+    });
     toast.success("Edit saved successfully.");
-    console.log(`Saved edit for: ${id}`, { newFront, newBack });
   };
 
   const handleReject = (id: string) => {
-    setProposals((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, rejected: true, accepted: false, edited: false } : p))
-    );
+    setProposals((prev) => {
+      const updatedProposals = prev.map((p) => {
+        if (p.id === id) {
+          return {
+            ...p,
+            rejected: true,
+            accepted: false,
+          };
+        }
+        return p;
+      });
+
+      return updatedProposals;
+    });
     toast.success("Proposal rejected.");
   };
 
@@ -128,7 +153,6 @@ export const FlashcardGenerationView: React.FC = () => {
 
     setIsSaving(true);
     setSaveError(null);
-    console.log("Saving flashcards DTOs:", dtosToSave);
 
     const command: FlashcardsCreateCommand = {
       flashcards: dtosToSave,
@@ -152,8 +176,7 @@ export const FlashcardGenerationView: React.FC = () => {
         throw new Error(errorMessage);
       }
 
-      const result = await response.json();
-      console.log("Save successful:", result);
+      await response.json();
       toast.success(`${dtosToSave.length} flashcards saved successfully!`);
 
       setProposals([]);
