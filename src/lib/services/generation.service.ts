@@ -102,8 +102,8 @@ class GenerationService {
       throw new AIServiceError("AI service failed to generate flashcards");
     }
 
-    // Generate 3-7 mock flashcards
-    const count = Math.floor(Math.random() * 5) + 3;
+    // Generate exactly 3 mock flashcards
+    const count = 3;
     const proposals: FlashcardProposalDto[] = [];
 
     for (let i = 0; i < count; i++) {
