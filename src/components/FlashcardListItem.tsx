@@ -14,6 +14,7 @@ export interface FlashcardProposalViewModel extends FlashcardProposalDto {
   id: string; // Add a temporary unique ID for mapping/keys
   accepted: boolean;
   edited: boolean;
+  rejected: boolean;
 }
 
 interface FlashcardListItemProps {
@@ -68,11 +69,12 @@ export const FlashcardListItem: React.FC<FlashcardListItemProps> = ({ flashcard,
 
   return (
     <Card
-      className={`mb-4 transition-all duration-300 ${flashcard.accepted ? "border-green-500" : ""} ${flashcard.edited ? "border-blue-500" : ""} ${isEditing ? "border-yellow-500" : ""}`}
+      className={`mb-4 transition-all duration-300 ${flashcard.accepted ? "border-green-500" : ""} ${flashcard.edited ? "border-blue-500" : ""} ${flashcard.rejected ? "border-red-500" : ""} ${isEditing ? "border-yellow-500" : ""}`}
     >
       <CardHeader>
         <CardTitle>
-          Proposal {flashcard.edited ? "(Edited)" : ""} {flashcard.accepted ? "(Accepted)" : ""}
+          Proposal {flashcard.edited ? "(Edited)" : ""} {flashcard.accepted ? "(Accepted)" : ""}{" "}
+          {flashcard.rejected ? "(Rejected)" : ""}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -134,14 +136,14 @@ export const FlashcardListItem: React.FC<FlashcardListItemProps> = ({ flashcard,
           </>
         ) : (
           <>
-            <Button variant="outline" onClick={handleAccept} disabled={flashcard.accepted || flashcard.edited}>
+            <Button variant="outline" onClick={handleAccept} disabled={flashcard.accepted}>
               {flashcard.accepted ? "Accepted" : "Accept"}
             </Button>
             <Button variant="outline" onClick={handleEditClick} disabled={flashcard.accepted}>
               Edit
             </Button>
-            <Button variant="destructive" onClick={handleReject}>
-              Reject
+            <Button variant={flashcard.rejected ? "outline" : "destructive"} onClick={handleReject}>
+              {flashcard.rejected ? "Rejected" : "Reject"}
             </Button>
           </>
         )}

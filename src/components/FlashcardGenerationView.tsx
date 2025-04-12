@@ -8,7 +8,7 @@ import type { FlashcardProposalViewModel } from "./FlashcardListItem";
 import { v4 as uuidv4 } from "uuid";
 import { ErrorNotification } from "./ErrorNotification";
 import { BulkSaveButton } from "./BulkSaveButton";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 import type { FlashcardsCreateCommand, FlashcardCreateDto, Source } from "@/types";
 
 // Validation constants
@@ -26,6 +26,7 @@ export const FlashcardGenerationView: React.FC = () => {
   const [proposals, setProposals] = useState<FlashcardProposalViewModel[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [savedSuccessfully, setSavedSuccessfully] = useState(false);
 
   const minLength = 1000;
   const maxLength = 10000;
@@ -37,6 +38,7 @@ export const FlashcardGenerationView: React.FC = () => {
         id: uuidv4(),
         accepted: false,
         edited: false,
+        rejected: false,
       }));
       setProposals(initialProposals);
       setSaveError(null);
@@ -53,12 +55,15 @@ export const FlashcardGenerationView: React.FC = () => {
     if (isValid) {
       setProposals([]);
       setSaveError(null);
+      setSavedSuccessfully(false);
       generateFlashcards({ source_text: textValue });
     }
   };
 
   const handleAccept = (id: string) => {
-    setProposals((prev) => prev.map((p) => (p.id === id ? { ...p, accepted: true, edited: false } : p)));
+    setProposals((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, accepted: true, edited: false, rejected: false } : p))
+    );
     toast.success("Proposal accepted.");
   };
 
@@ -71,7 +76,9 @@ export const FlashcardGenerationView: React.FC = () => {
   };
 
   const handleReject = (id: string) => {
-    setProposals((prev) => prev.filter((p) => p.id !== id));
+    setProposals((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, rejected: true, accepted: false, edited: false } : p))
+    );
     toast.success("Proposal rejected.");
   };
 
@@ -151,9 +158,11 @@ export const FlashcardGenerationView: React.FC = () => {
 
       setProposals([]);
       setTextValue("");
+      setSavedSuccessfully(true);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "An unknown error occurred during save";
       setSaveError(errorMessage);
+      setSavedSuccessfully(false);
       toast.error("Save failed", { description: errorMessage });
       console.error("Save failed:", errorMessage);
     } finally {
@@ -176,6 +185,7 @@ export const FlashcardGenerationView: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
+      <Toaster position="top-right" richColors />
       <h1 className="text-2xl font-bold mb-4">Generate Flashcards</h1>
       <TextInputArea
         value={textValue}
@@ -215,9 +225,11 @@ export const FlashcardGenerationView: React.FC = () => {
           />
         </div>
       )}
-      {!isGenerating && generationData && proposals.length === 0 && !(generationError || saveError) && (
-        <p className="mt-4">No proposals generated or all were rejected.</p>
-      )}
+      {!isGenerating &&
+        generationData &&
+        proposals.length === 0 &&
+        !(generationError || saveError) &&
+        !savedSuccessfully && <p className="mt-4">No proposals generated or all were rejected.</p>}
     </div>
   );
 };
