@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { CheckIcon, PencilIcon, XIcon, SaveIcon, XCircleIcon } from "lucide-react";
 import type { FlashcardProposalDto } from "@/types";
 
 // Validation constants (can be moved to a shared place later)
@@ -71,11 +72,48 @@ export const FlashcardListItem: React.FC<FlashcardListItemProps> = ({ flashcard,
     <Card
       className={`mb-4 transition-all duration-300 ${flashcard.accepted ? "border-green-500" : ""} ${flashcard.edited ? "border-blue-500" : ""} ${flashcard.rejected ? "border-red-500" : ""} ${isEditing ? "border-yellow-500" : ""}`}
     >
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle>
           Proposal {flashcard.edited ? "(Edited)" : ""} {flashcard.accepted ? "(Accepted)" : ""}{" "}
           {flashcard.rejected ? "(Rejected)" : ""}
         </CardTitle>
+        <div className="flex space-x-1">
+          {isEditing ? (
+            <>
+              <Button variant="ghost" size="icon" onClick={handleCancelEdit} title="Cancel">
+                <XCircleIcon className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={handleSaveEditClick} disabled={!canSaveChanges} title="Save">
+                <SaveIcon className="h-4 w-4" />
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleAccept}
+                disabled={flashcard.accepted}
+                className={flashcard.accepted ? "text-green-500" : ""}
+                title="Accept"
+              >
+                <CheckIcon className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={handleEditClick} disabled={flashcard.accepted} title="Edit">
+                <PencilIcon className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleReject}
+                className={flashcard.rejected ? "text-red-500" : ""}
+                title="Reject"
+              >
+                <XIcon className="h-4 w-4" />
+              </Button>
+            </>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         {isEditing ? (
@@ -124,30 +162,6 @@ export const FlashcardListItem: React.FC<FlashcardListItemProps> = ({ flashcard,
           </div>
         )}
       </CardContent>
-      <CardFooter className="flex justify-end space-x-2">
-        {isEditing ? (
-          <>
-            <Button variant="outline" onClick={handleCancelEdit}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveEditClick} disabled={!canSaveChanges}>
-              Save Edit
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button variant="outline" onClick={handleAccept} disabled={flashcard.accepted}>
-              {flashcard.accepted ? "Accepted" : "Accept"}
-            </Button>
-            <Button variant="outline" onClick={handleEditClick} disabled={flashcard.accepted}>
-              Edit
-            </Button>
-            <Button variant={flashcard.rejected ? "outline" : "destructive"} onClick={handleReject}>
-              {flashcard.rejected ? "Rejected" : "Reject"}
-            </Button>
-          </>
-        )}
-      </CardFooter>
     </Card>
   );
 };
