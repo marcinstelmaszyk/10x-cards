@@ -1,0 +1,16 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { ProfileCard } from "../../components/auth/ProfileCard";
+
+// For demonstration purposes only
+// This would be replaced with actual user data from the server
+const mockUser = {
+  email: "user@example.com",
+};
+---
+
+<Layout title="My Profile - 10x Cards">
+  <main class="container mx-auto px-4 min-h-screen flex items-center justify-center">
+    <ProfileCard email={mockUser.email} client:load />
+  </main>
+</Layout>

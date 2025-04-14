@@ -1,0 +1,13 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { AuthCard } from "../../components/auth/AuthCard";
+import { RegisterForm } from "../../components/auth/RegisterForm";
+---
+
+<Layout title="Register - 10x Cards">
+  <main class="container mx-auto px-4 min-h-screen flex items-center justify-center">
+    <AuthCard title="Create an Account" description="Sign up to store and manage your flashcards">
+      <RegisterForm client:load />
+    </AuthCard>
+  </main>
+</Layout>
