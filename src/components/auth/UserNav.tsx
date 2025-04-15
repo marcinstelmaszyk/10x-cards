@@ -3,10 +3,14 @@ import { useState } from "react";
 
 interface UserNavProps {
   user?: { email: string };
+  currentPath?: string;
 }
 
-export function UserNav({ user }: UserNavProps) {
+export function UserNav({ user, currentPath }: UserNavProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // Check if we're on login or register page
+  const isAuthPage = currentPath === "/auth/login" || currentPath === "/auth/register";
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
@@ -33,8 +37,13 @@ export function UserNav({ user }: UserNavProps) {
     }
   };
 
+  // If not logged in but on auth pages, don't show anything
+  if (!user && isAuthPage) {
+    return null;
+  }
+
   if (!user) {
-    // Not logged in - show login/register buttons
+    // Not logged in and not on auth pages - show login/register buttons
     return (
       <div className="flex gap-2 items-center">
         <Button asChild variant="outline" size="sm">
