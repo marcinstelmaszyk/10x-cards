@@ -37,16 +37,29 @@ export function LoginForm() {
 
     setIsLoading(true);
 
-    // In a real implementation, this would make an API call
-    // Currently just simulating form submission
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      // The actual API call will be implemented later
-      console.log("Login form submitted", { email, password });
-    } catch {
+      const data = await response.json();
+
+      if (!response.ok) {
+        setFormError(data.error || "Failed to login. Please try again.");
+        return;
+      }
+
+      // If login successful, redirect to the specified page
+      if (data.redirectTo) {
+        window.location.href = data.redirectTo;
+      }
+    } catch (error) {
       setFormError("An error occurred during login. Please try again.");
+      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }

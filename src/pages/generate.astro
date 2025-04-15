@@ -1,6 +1,11 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { FlashcardGenerationView } from "../components/FlashcardGenerationView";
+
+// Ensure this page is rendered on the server-side
+export const prerender = false;
+
+// Authentication is handled by middleware - it will redirect if not authenticated
 ---
 
 <Layout title="Generate Flashcards">

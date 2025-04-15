@@ -1,10 +1,38 @@
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 interface UserNavProps {
   user?: { email: string };
 }
 
 export function UserNav({ user }: UserNavProps) {
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        // Redirect to login page after successful logout
+        window.location.href = "/auth/login";
+      } else {
+        console.error("Logout failed");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
   if (!user) {
     // Not logged in - show login/register buttons
     return (
@@ -28,8 +56,8 @@ export function UserNav({ user }: UserNavProps) {
         </a>
       </Button>
 
-      <Button asChild variant="outline" size="sm">
-        <a href="/api/auth/logout">Logout</a>
+      <Button variant="outline" size="sm" onClick={handleLogout} disabled={isLoggingOut}>
+        {isLoggingOut ? "Logging out..." : "Logout"}
       </Button>
     </div>
   );

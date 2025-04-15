@@ -2,6 +2,14 @@
 import Layout from "../../layouts/Layout.astro";
 import { AuthCard } from "../../components/auth/AuthCard";
 import { LoginForm } from "../../components/auth/LoginForm";
+
+// Ensure this page is rendered on the server-side
+export const prerender = false;
+
+// If user is already logged in, redirect to generate page
+if (Astro.locals.user) {
+  return Astro.redirect("/generate");
+}
 ---
 
 <Layout title="Login - 10x Cards">
