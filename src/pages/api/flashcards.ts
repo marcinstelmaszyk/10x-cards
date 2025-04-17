@@ -3,7 +3,6 @@ import { z } from "zod";
 // Removed direct import of supabase client
 // import { supabase } from "../../db/supabase";
 import type { FlashcardsCreateCommand, Source, FlashcardDto } from "../../types";
-import { DEFAULT_USER_ID } from "../../db/supabase.client"; // Import DEFAULT_USER_ID
 
 // Ensure endpoint is treated as dynamic
 export const prerender = false;
@@ -82,10 +81,21 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   try {
+    // Check if user is authenticated
+    if (!locals.user) {
+      return new Response(JSON.stringify({ message: "Authentication required. Please log in." }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Store user in a local variable to satisfy the type checker
+    const user = locals.user;
+
     // Prepare data for batch insert - adding user_id
     const flashcardsToInsert = command.flashcards.map((fc) => ({
       ...fc,
-      user_id: DEFAULT_USER_ID, // Use imported DEFAULT_USER_ID
+      user_id: user.id, // Use actual user ID from locals
     }));
 
     // Using locals.supabase instead of imported client

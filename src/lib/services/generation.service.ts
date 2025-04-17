@@ -2,7 +2,6 @@ import crypto from "crypto";
 import type { SupabaseClient } from "../../db/supabase.client";
 import type { FlashcardProposalDto, GenerationCreateResponseDto } from "../../types";
 import { AIServiceError, DatabaseError } from "../errors/generation.errors";
-import { DEFAULT_USER_ID } from "../../db/supabase.client";
 import { createOpenRouterService } from "./openrouter.service";
 
 /**
@@ -15,9 +14,14 @@ class GenerationService {
    *
    * @param sourceText The text to generate flashcards from (1000-10000 characters)
    * @param supabaseClient The Supabase client to use for database operations
+   * @param userId The ID of the authenticated user
    * @returns A response object containing the generation ID, flashcard proposals, and count
    */
-  async generateFlashcards(sourceText: string, supabaseClient: SupabaseClient): Promise<GenerationCreateResponseDto> {
+  async generateFlashcards(
+    sourceText: string,
+    supabaseClient: SupabaseClient,
+    userId: string
+  ): Promise<GenerationCreateResponseDto> {
     try {
       // Step 1: Calculate metadata for the generation
       const startTime = Date.now();
@@ -25,7 +29,7 @@ class GenerationService {
       const sourceTextLength = sourceText.length;
 
       // Step 2: Call the AI service to generate flashcard proposals (using OpenRouter)
-      const flashcardProposals = await this.callAIService(sourceText);
+      const flashcardProposals = await this.callAIService(sourceText, userId);
       const generatedCount = flashcardProposals.length;
       const endTime = Date.now();
       const generationDuration = endTime - startTime;
@@ -39,7 +43,7 @@ class GenerationService {
           source_text_hash: sourceTextHash,
           source_text_length: sourceTextLength,
           generation_duration: generationDuration,
-          user_id: DEFAULT_USER_ID, // Use default user ID
+          user_id: userId, // Use provided user ID
         })
         .select("id")
         .single();
@@ -52,7 +56,8 @@ class GenerationService {
           generationError.message,
           "mistralai/mistral-7b-instruct:free",
           sourceTextHash,
-          sourceTextLength
+          sourceTextLength,
+          userId
         );
         throw new DatabaseError("Failed to save generation metadata");
       }
@@ -85,7 +90,7 @@ class GenerationService {
   /**
    * Call the OpenRouter AI service to generate flashcard proposals
    */
-  private async callAIService(sourceText: string): Promise<FlashcardProposalDto[]> {
+  private async callAIService(sourceText: string, userId?: string): Promise<FlashcardProposalDto[]> {
     try {
       // Create OpenRouter service instance
       const openRouter = createOpenRouterService();
@@ -150,7 +155,8 @@ You MUST return your response as a valid JSON object with a 'flashcards' array c
         error instanceof Error ? error.message : "Unknown AI service error",
         "mistralai/mistral-7b-instruct:free",
         this.calculateSourceTextHash(sourceText),
-        sourceText.length
+        sourceText.length,
+        userId
       );
 
       throw new AIServiceError("Failed to generate flashcards with AI service");
@@ -166,7 +172,8 @@ You MUST return your response as a valid JSON object with a 'flashcards' array c
     errorMessage: string,
     model: string,
     sourceTextHash: string,
-    sourceTextLength: number
+    sourceTextLength: number,
+    userId?: string
   ): Promise<void> {
     // In mock mode, just log to console
     if (!supabaseClient) {
@@ -182,7 +189,7 @@ You MUST return your response as a valid JSON object with a 'flashcards' array c
         model: model,
         source_text_hash: sourceTextHash,
         source_text_length: sourceTextLength,
-        user_id: DEFAULT_USER_ID, // Use default user ID
+        user_id: userId || "", // Provide empty string fallback when userId is undefined
       });
 
       if (error) {

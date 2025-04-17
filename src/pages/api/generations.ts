@@ -48,8 +48,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Call the actual generation service instead of using mocks
     console.log(`Processing AI generation for text length: ${command.source_text.length}`);
 
+    // Check if user is authenticated
+    if (!locals.user) {
+      return new Response(JSON.stringify({ message: "Authentication required. Please log in." }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     // Generate flashcards using the generation service
-    const responsePayload = await generationService.generateFlashcards(command.source_text, supabase);
+    const responsePayload = await generationService.generateFlashcards(command.source_text, supabase, locals.user.id);
 
     return new Response(JSON.stringify(responsePayload), {
       status: 200,
