@@ -15,7 +15,7 @@ export const FlashcardList: React.FC<FlashcardListProps> = ({ flashcards, onAcce
   }
 
   return (
-    <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3" data-test-id="flashcard-list">
       {flashcards.map((flashcard) => (
         <FlashcardListItem
           key={flashcard.id} // Use the temporary ID

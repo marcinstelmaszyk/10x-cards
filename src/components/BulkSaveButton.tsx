@@ -21,13 +21,19 @@ export const BulkSaveButton: React.FC<BulkSaveButtonProps> = ({
 
   return (
     <div className="flex justify-end space-x-2 mt-4 border-t pt-4">
-      <Button onClick={onSaveAll} disabled={disableSaveAll} variant="secondary">
+      <Button
+        onClick={onSaveAll}
+        disabled={disableSaveAll}
+        variant="secondary"
+        data-test-id="save-all-flashcards-button"
+      >
         {isSaving ? "Saving..." : "Save All"}
       </Button>
       <Button
         onClick={onSaveAccepted}
         disabled={disableSaveAccepted}
         variant="default" // Changed to default for primary action
+        data-test-id="save-accepted-flashcards-button"
       >
         {isSaving ? "Saving..." : "Save Accepted"}
       </Button>

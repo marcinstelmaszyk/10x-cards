@@ -71,6 +71,7 @@ export const FlashcardListItem: React.FC<FlashcardListItemProps> = ({ flashcard,
   return (
     <Card
       className={`mb-4 transition-all duration-300 ${flashcard.accepted ? "border-green-500" : ""} ${flashcard.edited ? "border-blue-500" : ""} ${flashcard.rejected ? "border-red-500" : ""} ${isEditing ? "border-yellow-500" : ""}`}
+      data-test-id={`flashcard-item-${flashcard.id}`}
     >
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle>
@@ -80,10 +81,23 @@ export const FlashcardListItem: React.FC<FlashcardListItemProps> = ({ flashcard,
         <div className="flex space-x-1">
           {isEditing ? (
             <>
-              <Button variant="ghost" size="icon" onClick={handleCancelEdit} title="Cancel">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCancelEdit}
+                title="Cancel"
+                data-test-id={`flashcard-cancel-edit-button-${flashcard.id}`}
+              >
                 <XCircleIcon className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={handleSaveEditClick} disabled={!canSaveChanges} title="Save">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSaveEditClick}
+                disabled={!canSaveChanges}
+                title="Save"
+                data-test-id={`flashcard-save-edit-button-${flashcard.id}`}
+              >
                 <SaveIcon className="h-4 w-4" />
               </Button>
             </>
@@ -96,10 +110,18 @@ export const FlashcardListItem: React.FC<FlashcardListItemProps> = ({ flashcard,
                 disabled={flashcard.accepted}
                 className={flashcard.accepted ? "text-green-500" : ""}
                 title="Accept"
+                data-test-id={`flashcard-accept-button-${flashcard.id}`}
               >
                 <CheckIcon className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={handleEditClick} disabled={flashcard.accepted} title="Edit">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleEditClick}
+                disabled={flashcard.accepted}
+                title="Edit"
+                data-test-id={`flashcard-edit-button-${flashcard.id}`}
+              >
                 <PencilIcon className="h-4 w-4" />
               </Button>
               <Button
@@ -108,6 +130,7 @@ export const FlashcardListItem: React.FC<FlashcardListItemProps> = ({ flashcard,
                 onClick={handleReject}
                 className={flashcard.rejected ? "text-red-500" : ""}
                 title="Reject"
+                data-test-id={`flashcard-reject-button-${flashcard.id}`}
               >
                 <XIcon className="h-4 w-4" />
               </Button>
@@ -124,6 +147,7 @@ export const FlashcardListItem: React.FC<FlashcardListItemProps> = ({ flashcard,
               </Label>
               <Textarea
                 id={`front-edit-${flashcard.id}`}
+                data-test-id={`flashcard-front-edit-${flashcard.id}`}
                 value={editedFront}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditedFront(e.target.value)}
                 rows={3}
@@ -139,6 +163,7 @@ export const FlashcardListItem: React.FC<FlashcardListItemProps> = ({ flashcard,
               </Label>
               <Textarea
                 id={`back-edit-${flashcard.id}`}
+                data-test-id={`flashcard-back-edit-${flashcard.id}`}
                 value={editedBack}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditedBack(e.target.value)}
                 rows={5}
@@ -153,11 +178,15 @@ export const FlashcardListItem: React.FC<FlashcardListItemProps> = ({ flashcard,
           <div className="space-y-2">
             <div>
               <p className="font-semibold">Front:</p>
-              <p className="whitespace-pre-wrap">{flashcard.front}</p>
+              <p className="whitespace-pre-wrap" data-test-id={`flashcard-front-text-${flashcard.id}`}>
+                {flashcard.front}
+              </p>
             </div>
             <div>
               <p className="font-semibold">Back:</p>
-              <p className="whitespace-pre-wrap">{flashcard.back}</p>
+              <p className="whitespace-pre-wrap" data-test-id={`flashcard-back-text-${flashcard.id}`}>
+                {flashcard.back}
+              </p>
             </div>
           </div>
         )}

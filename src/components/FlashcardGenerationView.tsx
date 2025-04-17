@@ -207,7 +207,7 @@ export const FlashcardGenerationView: React.FC = () => {
   const disableBulkSave = proposals.length === 0 || isGenerating || isSaving;
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4" data-test-id="flashcard-generation-view">
       <Toaster position="top-right" richColors />
       <h1 className="text-2xl font-bold mb-4">Generate Flashcards</h1>
       <TextInputArea
@@ -231,7 +231,7 @@ export const FlashcardGenerationView: React.FC = () => {
       {isGenerating && <SkeletonLoader />}
 
       {!isGenerating && proposals.length > 0 && (
-        <div className="mt-4">
+        <div className="mt-4" data-test-id="flashcard-proposals-container">
           <h2 className="text-xl font-semibold mb-2">Generated Proposals ({proposals.length})</h2>
           <FlashcardList
             flashcards={proposals}

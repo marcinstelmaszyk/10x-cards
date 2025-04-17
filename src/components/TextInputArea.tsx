@@ -20,6 +20,7 @@ export const TextInputArea: React.FC<TextInputAreaProps> = ({ value, onChange, p
       <Label htmlFor="text-input-area">Source Text</Label>
       <Textarea
         id="text-input-area"
+        data-test-id="flashcard-text-input"
         placeholder={placeholder}
         value={value}
         onChange={onChange}

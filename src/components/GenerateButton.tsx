@@ -13,7 +13,7 @@ export const GenerateButton: React.FC<GenerateButtonProps> = ({
   ...props
 }) => {
   return (
-    <Button {...props} disabled={disabled || isLoading}>
+    <Button {...props} disabled={disabled || isLoading} data-test-id="generate-flashcards-button">
       {isLoading ? "Generating..." : children}
     </Button>
   );
