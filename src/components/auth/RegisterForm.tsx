@@ -48,14 +48,26 @@ export function RegisterForm() {
 
     setIsLoading(true);
 
-    // In a real implementation, this would make an API call
-    // Currently just simulating form submission
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      // The actual API call will be implemented later
-      console.log("Registration form submitted", { email, password });
+      const data = await response.json();
+
+      if (!response.ok) {
+        setFormError(data.error || "Registration failed. Please try again.");
+        return;
+      }
+
+      // On success, redirect to the specified path
+      if (data.redirectTo) {
+        window.location.href = data.redirectTo;
+      }
     } catch {
       setFormError("An error occurred during registration. Please try again.");
     } finally {
