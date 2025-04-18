@@ -16,10 +16,22 @@ const PUBLIC_PATHS = [
 ];
 
 export const onRequest = defineMiddleware(async ({ locals, cookies, url, request, redirect }, next) => {
-  // Create server-side Supabase client
+  // Get the runtime environment (contains secrets like SUPABASE_URL, SUPABASE_KEY)
+  const runtimeEnv = locals.runtime?.env;
+
+  // Check if runtimeEnv is available
+  if (!runtimeEnv) {
+    console.error("Cloudflare runtime environment not found in locals!");
+    // You might want to throw an error or return a specific response here
+    // depending on how critical this is.
+    return new Response("Internal Server Error: Missing runtime environment", { status: 500 });
+  }
+
+  // Create server-side Supabase client, passing the runtime environment
   const supabase = createSupabaseServerInstance({
     cookies,
     headers: request.headers,
+    runtimeEnv: runtimeEnv, // Pass the runtime env here
   });
 
   // Add supabase to locals for use in API routes
