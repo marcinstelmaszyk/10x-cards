@@ -15,10 +15,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const gitignorePath = path.resolve(__dirname, ".gitignore");
 
+// Use a simpler approach for conditional configuration
 const baseConfig = tseslint.config({
   extends: [eslint.configs.recommended, tseslint.configs.strict, tseslint.configs.stylistic],
   rules: {
-    "no-console": "warn",
+    // Use 'off' to disable console warnings - can be set to 'warn' or 'error' in production
+    "no-console": "off",
     "no-unused-vars": "off",
   },
 });

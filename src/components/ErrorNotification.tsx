@@ -1,4 +1,5 @@
 import { AlertCircle } from "lucide-react";
+import PropTypes from "prop-types";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -16,4 +17,8 @@ export const ErrorNotification: React.FC<ErrorNotificationProps> = ({ message })
       <AlertDescription>{message}</AlertDescription>
     </Alert>
   );
+};
+
+ErrorNotification.propTypes = {
+  message: PropTypes.string.isRequired,
 };

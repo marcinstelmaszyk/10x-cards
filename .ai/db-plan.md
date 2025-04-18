@@ -1,4 +1,3 @@
-
 # 10xCards Database Schema
 
 ## 1. Tabele
@@ -24,7 +23,7 @@ This table is managed by Supabase Auth.
 - generation_id: BIGINT REFERENCES generations(id) ON DELETE SET NULL
 - user_id: UUID NOT NULL REFERENCES users(id)
 
-*Trigger: Automatically update the `updated_at` column on record updates.*
+_Trigger: Automatically update the `updated_at` column on record updates._
 
 ### 1.3. generations
 
