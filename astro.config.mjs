@@ -28,20 +28,5 @@ export default defineConfig({
     ssr: {
       noExternal: ["react-dom/server"],
     },
-    // Add our polyfill to fix MessageChannel issue
-    define: {
-      "process.env.NODE_ENV": JSON.stringify("production"),
-    },
-    // Add this to ensure our polyfill loads before React
-    optimizeDeps: {
-      include: ["react", "react-dom"],
-    },
-    build: {
-      rollupOptions: {
-        input: {
-          polyfills: "./src/polyfills.js",
-        },
-      },
-    },
   },
 });
