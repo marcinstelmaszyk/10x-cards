@@ -1,5 +1,4 @@
 import type { APIRoute } from "astro";
-import { createSupabaseServerInstance } from "../../../db/supabase.server.ts";
 import { z } from "zod";
 
 // Define schema for input validation
@@ -19,7 +18,7 @@ const errorMessages: Record<string, string> = {
   "Email rate limit exceeded": "Too many sign up attempts. Please try again later",
 };
 
-export const POST: APIRoute = async ({ request, cookies }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const body = await request.json();
 
@@ -36,10 +35,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     const { email, password } = result.data;
 
-    const supabase = createSupabaseServerInstance({
-      cookies,
-      headers: request.headers,
-    });
+    // Use supabase instance from locals (created by middleware)
+    const supabase = locals.supabase;
 
     const { data, error } = await supabase.auth.signUp({
       email,
