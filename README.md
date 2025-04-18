@@ -50,7 +50,7 @@ The project scope includes:
 
 ## Project Status
 
-MVP under active development.
+MVP under development.
 
 ## License
 
