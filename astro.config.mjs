@@ -10,13 +10,23 @@ import cloudflare from "@astrojs/cloudflare";
 export default defineConfig({
   output: "server",
   site: "https://10x-cards-prod.pages.dev",
-  adapter: cloudflare(),
-  integrations: [react(), sitemap()],
+  adapter: cloudflare({
+    imageService: "compile", // Use compile-time image optimization
+  }),
+  integrations: [
+    react({
+      include: ["**/*.tsx", "**/*.jsx"],
+    }),
+    sitemap(),
+  ],
   server: { port: 3000 },
   experimental: {
-    session: true,
+    session: true, // Keep the default session setting
   },
   vite: {
     plugins: [tailwindcss()],
+    ssr: {
+      noExternal: ["react-dom/server"],
+    },
   },
 });

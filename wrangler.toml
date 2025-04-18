@@ -1,15 +1,26 @@
+# Cloudflare Pages configuration
+name = "10x-cards"
+compatibility_date = "2023-11-15"
+
+# Build settings
+[build]
+command = "npm run build"
+
+# Output directory (required for Pages)
 [site]
 bucket = "./dist"
 
-[build]
-command = "npm run build"
-upload.format = "directory"
+# This is crucial for Cloudflare Pages to find the build output
+[build.upload]
+format = "directory"
 
-[build.environment]
-NODE_VERSION = "20"
+# Add KV namespace binding for sessions
+[[kv_namespaces]]
+binding = "SESSION"
+id = "your-kv-namespace-id" # Replace with actual KV namespace ID once created
 
+# Redirects and routes
 [env.production]
-name = "10x-cards-production"
 routes = [
   { pattern = "*", zone_name = "your-domain.com" }
 ]

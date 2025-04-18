@@ -1,4 +1,4 @@
-import crypto from "crypto";
+// import crypto from "crypto";
 import type { SupabaseClient } from "../../db/supabase.client";
 import type { FlashcardProposalDto, GenerationCreateResponseDto } from "../../types";
 import { AIServiceError, DatabaseError } from "../errors/generation.errors";
@@ -25,7 +25,7 @@ class GenerationService {
     try {
       // Step 1: Calculate metadata for the generation
       const startTime = Date.now();
-      const sourceTextHash = this.calculateSourceTextHash(sourceText);
+      const sourceTextHash = await this.calculateSourceTextHash(sourceText);
       const sourceTextLength = sourceText.length;
 
       // Step 2: Call the AI service to generate flashcard proposals (using OpenRouter)
@@ -81,10 +81,22 @@ class GenerationService {
   }
 
   /**
-   * Calculate a MD5 hash of the source text
+   * Calculate a MD5 hash of the source text using Web Crypto API
+   * Compatible with Cloudflare Workers environment
    */
-  private calculateSourceTextHash(sourceText: string): string {
-    return crypto.createHash("md5").update(sourceText).digest("hex");
+  private async calculateSourceTextHash(sourceText: string): Promise<string> {
+    // Convert string to buffer
+    const encoder = new TextEncoder();
+    const data = encoder.encode(sourceText);
+
+    // Use Web Crypto API to hash the data (SHA-256 instead of MD5)
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+
+    // Convert buffer to hex string
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+
+    return hashHex;
   }
 
   /**
@@ -154,7 +166,7 @@ You MUST return your response as a valid JSON object with a 'flashcards' array c
         "AI_SERVICE_ERROR",
         error instanceof Error ? error.message : "Unknown AI service error",
         "mistralai/mistral-7b-instruct:free",
-        this.calculateSourceTextHash(sourceText),
+        await this.calculateSourceTextHash(sourceText),
         sourceText.length,
         userId
       );
