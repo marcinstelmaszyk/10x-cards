@@ -15,8 +15,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
+          node-version-file: ".nvmrc"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -35,8 +35,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
+          node-version-file: ".nvmrc"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -84,10 +84,10 @@ jobs:
             const fs = require('fs');
             const commentBody = fs.readFileSync('pr_comment.md', 'utf8');
             const { issue: { number: issue_number }, repo: { owner, repo } } = context;
-            
+
             github.rest.issues.createComment({
               owner,
               repo,
               issue_number,
               body: commentBody
-            }); 
+            });
