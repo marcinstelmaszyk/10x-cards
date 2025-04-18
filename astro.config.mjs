@@ -9,7 +9,7 @@ import cloudflare from "@astrojs/cloudflare";
 // https://astro.build/config
 export default defineConfig({
   output: "server",
-  site: "https://10x-cards.pages.dev", // Update this with your actual Cloudflare Pages URL
+  site: "https://10x-cards-prod.pages.dev",
   adapter: cloudflare(),
   integrations: [react(), sitemap()],
   server: { port: 3000 },
