@@ -1,0 +1,18 @@
+[site]
+bucket = "./dist"
+
+[build]
+command = "npm run build"
+upload.format = "directory"
+
+[build.environment]
+NODE_VERSION = "20"
+
+[env.production]
+name = "10x-cards-production"
+routes = [
+  { pattern = "*", zone_name = "your-domain.com" }
+]
+
+[env.staging]
+name = "10x-cards-staging" 
