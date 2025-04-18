@@ -7,22 +7,17 @@ import tailwindcss from "@tailwindcss/vite";
 import cloudflare from "@astrojs/cloudflare";
 
 // Polyfill code to be injected
-const messageChannelPolyfill = `
+const polyfills = `
+// Polyfill MessageChannel
 if (typeof MessageChannel === 'undefined') {
-  class MessagePortPolyfill {
-    postMessage() { /* No-op */ }
-    addEventListener() { /* No-op */ }
-    removeEventListener() { /* No-op */ }
-    dispatchEvent() { return true; }
-  }
-  class MessageChannelPolyfill {
-    constructor() {
-      this.port1 = new MessagePortPolyfill();
-      this.port2 = new MessagePortPolyfill();
-    }
-  }
+  class MessagePortPolyfill { postMessage() {} addEventListener() {} removeEventListener() {} dispatchEvent() { return true; } }
+  class MessageChannelPolyfill { constructor() { this.port1 = new MessagePortPolyfill(); this.port2 = new MessagePortPolyfill(); } }
   globalThis.MessageChannel = MessageChannelPolyfill;
   globalThis.MessagePort = MessagePortPolyfill;
+}
+// Define minimal process object
+if (typeof process === 'undefined') {
+  globalThis.process = { env: { NODE_ENV: 'production' } };
 }
 `;
 
@@ -51,8 +46,8 @@ export default defineConfig({
     build: {
       rollupOptions: {
         output: {
-          // Inject the polyfill at the very beginning of the worker bundle
-          banner: messageChannelPolyfill,
+          // Inject the polyfills at the very beginning of the worker bundle
+          banner: polyfills,
         },
       },
     },
